@@ -2,7 +2,7 @@ from django.db.models import F
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from .models import DeduceUser, Level, AnswerLog, Hint
+from .models import User, Level, AnswerLog, Hint
 from .serializers import LevelSerializer
 from .decorators import is_logged_in
 from datetime import datetime
@@ -12,7 +12,7 @@ class GetQuestion(APIView):
     @is_logged_in
     def get(self, req, jwt_data):
         user_id = "123"
-        duser, created = DeduceUser.objects.get_or_create(user_id=user_id)
+        duser, created = User.objects.get_or_create(user_id=user_id)
         level = Level.objects.get(level_number=duser.level)
         if not level:
             return Response(
@@ -30,7 +30,7 @@ class Answer(APIView):
             return Response("Invalid request", status=status.HTTP_400_BAD_REQUEST)
 
         user_id = "123"
-        duser = DeduceUser.objects.get(user_id=user_id)
+        duser = User.objects.get(user_id=user_id)
         if not duser:
             return Response("Invalid Credentials", status=status.HTTP_401_UNAUTHORIZED)
         level = Level.objects.get(level_number=duser.level)

@@ -1,21 +1,27 @@
+from django.contrib.auth.models import AbstractUser
+from django.conf import settings
 from django.db import models
 
 
-class DeduceUser(models.Model):
-    user_id = models.CharField(primary_key=True, max_length=100)
+class User(AbstractUser):
+    id = models.CharField(max_length=50, primary_key=True)
+    profile_picture = models.URLField(null=False, blank=False)
     level = models.IntegerField(default=1, null=False)
     last_anstime = models.DateTimeField(null=True)
 
     def __str__(self):
-        return self.user_id
+        return self.email
 
     class Meta:
         ordering = ["-level", "last_anstime"]
-        verbose_name_plural = "Deduce Users"
 
 
 class Level(models.Model):
     options = (("I", "Image"), ("NI", "Not Image"))
+
+    level_number = models.IntegerField(primary_key=True)
+    answer = models.CharField(max_length=200, null=False)
+    question = models.TextField(null=True)
 
     level_number = models.IntegerField(primary_key=True)
     answer = models.CharField(max_length=200, null=False)
@@ -38,7 +44,7 @@ class Hint(models.Model):
 
 
 class AnswerLog(models.Model):
-    user = models.ForeignKey(DeduceUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     level = models.IntegerField(default=1)
     answer = models.TextField()
     anstime = models.DateTimeField(null=True)
