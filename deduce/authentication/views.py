@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 
 import requests
 
@@ -37,9 +38,9 @@ class SignIn(APIView):
                     pro_pic=userinfo["picture"],
                     email=userinfo["email"],
                 )
-            req.session["user"] = curruser.id
-            req.session["logged_in"] = True
-            req.session.save()
+
+            # Generate access and refresh tokens
+            refresh = RefreshToken.for_user(curruser)
 
             return Response("Login success", status.HTTP_200_OK)
 
@@ -47,13 +48,3 @@ class SignIn(APIView):
             return Response(
                 "Authentication failed", status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
-
-class AuthComplete(APIView):
-    def get(self, req):
-        return Response("Login successful")
-
-
-class LogoutSuccess(APIView):
-    def get(self, req):
-        return Response("Logout successful")
