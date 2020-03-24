@@ -31,7 +31,7 @@ class SignIn(APIView):
             # If the user does not exist, create a new user
             curruser = User.objects.get(id=userinfo["sub"])
             if not curruser:
-                newuser = User.objects.create(
+                curruser = User.objects.create(
                     id=userinfo["sub"],
                     name=userinfo["name"],
                     pro_pic=userinfo["picture"],
