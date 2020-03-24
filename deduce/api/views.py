@@ -4,11 +4,13 @@ from rest_framework.views import APIView
 from rest_framework import status
 from .models import DeduceUser, Level, AnswerLog, Hint
 from .serializers import LevelSerializer
+from .decorators import is_logged_in
 from datetime import datetime
 
 
 class GetQuestion(APIView):
-    def get(self, req):
+    @is_logged_in
+    def get(self, req, jwt_data):
         user_id = "123"
         duser, created = DeduceUser.objects.get_or_create(user_id=user_id)
         level = Level.objects.get(level_number=duser.level)
@@ -21,7 +23,8 @@ class GetQuestion(APIView):
 
 
 class Answer(APIView):
-    def post(self, req):
+    @is_logged_in
+    def post(self, req, jwt_data):
         # Format of POST request should be {"answer": "attempt"}
         if "answer" not in req.data:
             return Response("Invalid request", status=status.HTTP_400_BAD_REQUEST)
