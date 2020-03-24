@@ -1,10 +1,11 @@
 from django.shortcuts import render
+from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 
 import requests
+import jwt
 
 from .models import User
 
@@ -39,12 +40,19 @@ class SignIn(APIView):
                     email=userinfo["email"],
                 )
 
-            # Generate access and refresh tokens
-            refresh = RefreshToken.for_user(curruser)
+            user_jwt = self.createJWT(
+                id=user["sub"],
+                name=user["name"],
+                pro_pic=user["picture"],
+                email=user["email"],
+            )
 
-            return Response("Login success", status.HTTP_200_OK)
+            return Response({"success": True, "jwt": user_jwt}, status.HTTP_200_OK)
 
         except Exception as e:
             return Response(
                 "Authentication failed", status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+    def createJWT(self, **kwargs):
+        return jwt.encode(kwargs, settings.JWT_SECRET_KEY, algorithm="HS512")
