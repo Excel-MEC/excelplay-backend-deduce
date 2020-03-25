@@ -5,6 +5,7 @@ import os
 from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 from rest_framework import status
 
 from api.models import User
@@ -19,6 +20,7 @@ AUTH0_URL = env.str("AUTH0_URL")
 class LoginApiView(APIView):
     """Create or get an user object by exchanging Auth0 access_token."""
 
+    permission_classes = (AllowAny,)
     def post(self, request):
         """Post auth0 access token, returns a jwt refresh_token ."""
         serializer = AccessTokenSerializer(data=request.data)

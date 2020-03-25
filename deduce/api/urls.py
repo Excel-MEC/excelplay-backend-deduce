@@ -6,10 +6,11 @@ from rest_framework_simplejwt.views import (
 
 # from deduce.api.views import GetQuestion, Answer
 from api.views.auth import LoginApiView
+from api.views.level import QuestionView
 
 urlpatterns = [
     path("login", LoginApiView.as_view()),
     path("refresh", TokenRefreshView.as_view(), name="token_refresh"), # return access_token
-    # path("question", GetQuestion.as_view()),
+    path("question", QuestionView.as_view(), name="get-question"),
     # path("answer", Answer.as_view()),
 ]
