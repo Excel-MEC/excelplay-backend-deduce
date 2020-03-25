@@ -2,8 +2,12 @@ from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from django.db import models
 
+from rest_framework_simplejwt.tokens import RefreshToken
+
 
 class User(AbstractUser):
+    """Custom User model."""
+    
     id = models.CharField(max_length=50, primary_key=True)
     profile_picture = models.URLField(null=False, blank=False)
     level = models.IntegerField(default=1, null=False)
@@ -14,6 +18,15 @@ class User(AbstractUser):
 
     class Meta:
         ordering = ["-level", "last_anstime"]
+
+    def create_refresh_token(self):
+        """Create refresh_token for the given user instance."""
+        refresh = RefreshToken.for_user(self)
+        return {
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        }
+
 
 
 class Level(models.Model):

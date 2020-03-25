@@ -1,7 +1,15 @@
 from django.urls import path
-from .views import GetQuestion, Answer
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
+# from deduce.api.views import GetQuestion, Answer
+from api.views.auth import LoginApiView
 
 urlpatterns = [
-    path("question", GetQuestion.as_view()),
-    path("answer", Answer.as_view()),
+    path("login", LoginApiView.as_view()),
+    path("refresh", TokenRefreshView.as_view(), name="token_refresh"), # return access_token
+    # path("question", GetQuestion.as_view()),
+    # path("answer", Answer.as_view()),
 ]
