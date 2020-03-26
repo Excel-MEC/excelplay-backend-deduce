@@ -28,7 +28,6 @@ class User(AbstractUser):
         }
 
 
-
 class Level(models.Model):
     options = (("I", "Image"), ("NI", "Not Image"))
     level_number = models.IntegerField(primary_key=True)
@@ -45,7 +44,7 @@ class Level(models.Model):
 
 
 class Hint(models.Model):
-    level = models.ForeignKey(Level, on_delete=models.CASCADE)
+    level = models.ForeignKey(Level, related_name="hints", on_delete=models.CASCADE)
     hint = models.TextField()
 
     def __str__(self):
