@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Level
+from .models import Level, Hint
 
 
 class AccessTokenSerializer(serializers.Serializer):
@@ -8,12 +8,22 @@ class AccessTokenSerializer(serializers.Serializer):
     access_token = serializers.CharField(max_length=32)
 
 
+class HintSerializer(serializers.ModelSerializer):
+    """Serialize Hints"""
+
+    class Meta:
+        model = Hint
+        fields = ("hint",)
+
+
 class QuestionSerializer(serializers.ModelSerializer):
     """Serialize Question."""
 
+    hints = HintSerializer(many=True, read_only=True)
+
     class Meta:
         model = Level
-        fields = ("level_number", "level_file", "question", "filetype")
+        fields = ("level_number", "level_file", "question", "filetype", "hints")
 
 
 class AnswerInputSerializer(serializers.Serializer):
