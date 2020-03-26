@@ -1,6 +1,4 @@
 import requests
-import environ
-import os
 
 from django.conf import settings
 from rest_framework.views import APIView
@@ -12,15 +10,11 @@ from api.models import User
 from api.serializers import AccessTokenSerializer
 
 
-env = environ.Env()
-environ.Env.read_env(env_file=os.path.join(settings.BASE_DIR, ".env"))
-AUTH0_URL = env.str("AUTH0_URL")
-
-
 class LoginApiView(APIView):
     """Create or get an user object by exchanging Auth0 access_token."""
 
     permission_classes = (AllowAny,)
+
     def post(self, request):
         """Post auth0 access token, returns a jwt refresh_token ."""
         serializer = AccessTokenSerializer(data=request.data)
@@ -36,7 +30,7 @@ class LoginApiView(APIView):
         header = {
             "Authorization": "Bearer " + access_token,
         }
-        response = requests.get(url=AUTH0_URL, headers=header)
+        response = requests.get(url=settings.AUTH0_URL, headers=header)
 
         if response.status_code == 200:
             user_data = response.json()
@@ -48,7 +42,9 @@ class LoginApiView(APIView):
 
     def create_or_get_user(self, user_data):
         """Create or get a user object using user_id."""
-        user_data_sub = user_data.get("sub").split("|")[1]  # Unique user_id from 0Auth provider
+        user_data_sub = user_data.get("sub").split("|")[
+            1
+        ]  # Unique user_id from 0Auth provider
         user, created = User.objects.get_or_create(
             id=user_data_sub,
             first_name=user_data.get("given_name", ""),
