@@ -37,6 +37,7 @@ class Level(models.Model):
     filetype = models.CharField(
         max_length=10, choices=options, default="Image", blank=True
     )
+    cover_image = models.FileField(upload_to="cover_images/", null=True, blank=True)
     is_locked = models.BooleanField(default=True)
 
     def __str__(self):

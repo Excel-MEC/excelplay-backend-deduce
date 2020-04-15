@@ -2,8 +2,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import RetrieveAPIView, GenericAPIView
 
-from api.models import Level, AnswerLog
-from api.serializers import QuestionSerializer, AnswerInputSerializer
+from api.models import Level, AnswerLog, Hint
+from api.serializers import QuestionSerializer, AnswerInputSerializer, HintSerializer
 
 
 class QuestionView(RetrieveAPIView):
@@ -58,5 +58,16 @@ class InputAnswerView(GenericAPIView):
     def get_queryset(self):
         return Level.objects.filter(level_number=self.request.user.level)
 
+    def get_object(self):
+        return self.get_queryset().first()
+
+
+class HintView(RetrieveAPIView):
+
+    serializer_class = HintSerializer
+    def get_queryset(self):
+        user_level = self.request.user.level
+        return Hint.objects.filter(level=user_level)
+    
     def get_object(self):
         return self.get_queryset().first()

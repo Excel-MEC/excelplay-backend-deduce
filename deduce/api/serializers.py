@@ -23,10 +23,10 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Level
-        fields = ("level_number", "level_file", "question", "filetype", "hints")
+        fields = ("level_number", "level_file", "cover_image", "question", "filetype", "hints")
 
 
 class AnswerInputSerializer(serializers.Serializer):
     """Serialize input answer field."""
-
+    
     answer = serializers.CharField(max_length=500)
