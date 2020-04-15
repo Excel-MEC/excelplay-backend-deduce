@@ -5,12 +5,12 @@ from rest_framework_simplejwt.views import (
 )
 
 from api.views.auth import LoginApiView
-from api.views.level import QuestionView, InputAnswerView, HintView
+from api.views.level import QuestionView, InputAnswerView, LeaderboardView
 
 urlpatterns = [
     path("login", LoginApiView.as_view(), name="deduce-login"),
     path("refresh", TokenRefreshView.as_view(), name="deduce-token-refresh"),
     path("question", QuestionView.as_view(), name="deduce-question"),
     path("answer", InputAnswerView.as_view(), name="deduce-answer"),
-    path("hint", HintView.as_view(), name="deduce-hint"),
+    path("leaderboard", LeaderboardView.as_view(), name="deduce-leaderboard"),
 ]

@@ -1,9 +1,9 @@
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.generics import RetrieveAPIView, GenericAPIView
+from rest_framework.generics import RetrieveAPIView, ListAPIView, GenericAPIView
 
 from api.models import Level, AnswerLog, Hint
-from api.serializers import QuestionSerializer, AnswerInputSerializer, HintSerializer
+from api.serializers import QuestionSerializer, AnswerInputSerializer, HintSerializer, LeaderboardSerializer
 
 
 class QuestionView(RetrieveAPIView):
@@ -23,6 +23,7 @@ class QuestionView(RetrieveAPIView):
 class InputAnswerView(GenericAPIView):
     """Post and verify answers."""
 
+    serializer_class = AnswerInputSerializer
     def post(self, request):
         serializer = AnswerInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -49,6 +50,7 @@ class InputAnswerView(GenericAPIView):
             user.save()
 
             level.is_locked = False  # Unlock level for all users
+            level.unlocked_by = user
             level.save()
 
             return Response({"correct_answer": True}, status=status.HTTP_200_OK)
@@ -62,12 +64,9 @@ class InputAnswerView(GenericAPIView):
         return self.get_queryset().first()
 
 
-class HintView(RetrieveAPIView):
+class LeaderboardView(ListAPIView):
 
-    serializer_class = HintSerializer
-    def get_queryset(self):
-        user_level = self.request.user.level
-        return Hint.objects.filter(level=user_level)
+    serializer_class = LeaderboardSerializer
     
-    def get_object(self):
-        return self.get_queryset().first()
+    def get_queryset(self):
+        return Level.objects.filter(is_locked=False)

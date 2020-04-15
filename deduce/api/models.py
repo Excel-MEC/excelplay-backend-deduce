@@ -13,9 +13,11 @@ class User(AbstractUser):
     level = models.IntegerField(default=1, null=False)
     last_anstime = models.DateTimeField(null=True)
 
+    def get_full_name(self):
+        return super().get_full_name()
+        
     def __str__(self):
         return self.email
-
     class Meta:
         ordering = ["-level", "last_anstime"]
 
@@ -33,12 +35,14 @@ class Level(models.Model):
     level_number = models.IntegerField(primary_key=True)
     answer = models.CharField(max_length=200, null=False)
     question = models.TextField(null=True)
-    level_file = models.FileField(upload_to="level_images/", null=True, blank=True)
-    filetype = models.CharField(
-        max_length=10, choices=options, default="Image", blank=True
-    )
-    cover_image = models.FileField(upload_to="cover_images/", null=True, blank=True)
+
+    level_file_1 = models.FileField(upload_to="level_images/", null=True, blank=True)
+    level_file_2 = models.FileField(upload_to="level_images/", null=True, blank=True)
+    level_file_3 = models.FileField(upload_to="level_images/", null=True, blank=True)
+    
+    cover_image = models.FileField(upload_to="cover_images/", null=False, blank=False)
     is_locked = models.BooleanField(default=True)
+    unlocked_by = models.ForeignKey(User, related_name="unlocked_by", on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return str(self.level_number)
