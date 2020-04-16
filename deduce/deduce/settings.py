@@ -28,7 +28,7 @@ AUTH0_URL = env("AUTH0_URL")
 SECRET_KEY = "0dq$pj6*@_p+rw+rwrwrz^g)m&1nq@ku0hj9jrk1%5a!=w(mz$"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool("DEBUG")
 
 ALLOWED_HOSTS = ["*"]
 
@@ -80,12 +80,24 @@ WSGI_APPLICATION = "deduce.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+#     }
+# }
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': env.str('POSTGRES_DB'),
+        'USER': env.str('POSTGRES_USER'),
+        'PASSWORD': env.str('POSTGRES_PASSWORD'),
+        'HOST': 'database',  # <-- IMPORTANT: same name as docker-compose service!
+        'PORT': '5432',
     }
 }
+
 
 AUTH_USER_MODEL = "api.User"
 
@@ -130,3 +142,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = "/static/"
+MEDIA_URL = "/media/"
+
+STATIC_ROOT = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), 'static')
+
+# do the same for media files, it must match /opt/services/djangoapp/media/
+MEDIA_ROOT = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), 'media')
