@@ -1,0 +1,39 @@
+image: gitlab/dind:latest
+services:
+  - docker:dind
+before_script:
+  - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+stages:
+  - build
+  - deploy
+build:
+  stage: build
+  script:
+    - docker build -t $CI_REGISTRY/$CI_PROJECT_PATH:latest . 
+    - docker push $CI_REGISTRY/$CI_PROJECT_PATH:latest
+  tags:
+    - docker 
+deploy:
+  stage: deploy
+  script:
+    ###### Login to deployment server using SSH #####
+    - mkdir -p ~/.ssh
+    - echo "$DEPLOYMENT_SERVER_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval "$(ssh-agent -s)"
+    - ssh-add ~/.ssh/id_rsa
+    - ssh-keyscan -H $DEPLOYMENT_SERVER_IP >> ~/.ssh/known_hosts  
+    ###### Pull the registry to deployment server and recereate the docker service #####    
+
+    - ssh $DEPLOYMENT_SERVER_USERNAME@$DEPLOYMENT_SERVER_IP docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY 
+    - ssh $DEPLOYMENT_SERVER_USERNAME@$DEPLOYMENT_SERVER_IP docker pull $CI_REGISTRY/$CI_PROJECT_PATH:latest
+    - ssh $DEPLOYMENT_SERVER_USERNAME@$DEPLOYMENT_SERVER_IP docker-compose -f $excelplay-backend-deduce/$DOCKER_COMPOSE_FILE_NAME up -d $CI_PROJECT_NAME
+    - ssh $DEPLOYMENT_SERVER_USERNAME@$DEPLOYMENT_SERVER_IP docker system prune -a -f
+    - ssh $DEPLOYMENT_SERVER_USERNAME@$DEPLOYMENT_SERVER_IP docker rmi $(docker images -f dangling=true -q)
+
+    
+  only:
+    - master
+  tags:
+    - docker
