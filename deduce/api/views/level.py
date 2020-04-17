@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from django.contrib.auth.mixins import LoginRequiredMixin
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import RetrieveAPIView, ListAPIView, GenericAPIView
@@ -14,7 +13,7 @@ from api.serializers import (
 )
 
 
-class QuestionView(LoginRequiredMixin, RetrieveAPIView):
+class QuestionView(RetrieveAPIView):
     """Retrieve question based on current user level."""
 
     serializer_class = QuestionSerializer
@@ -28,7 +27,7 @@ class QuestionView(LoginRequiredMixin, RetrieveAPIView):
         return self.get_queryset().first()
 
 
-class InputAnswerView(LoginRequiredMixin, GenericAPIView):
+class InputAnswerView(GenericAPIView):
     """Post and verify answers."""
 
     serializer_class = AnswerInputSerializer
@@ -79,7 +78,7 @@ class InputAnswerView(LoginRequiredMixin, GenericAPIView):
         return self.get_queryset().first()
 
 
-class LeaderboardView(LoginRequiredMixin, ListAPIView):
+class LeaderboardView(ListAPIView):
     """Retrieve Leaderboard as a list."""
 
     serializer_class = LeaderboardSerializer
