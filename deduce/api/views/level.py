@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import RetrieveAPIView, ListAPIView, GenericAPIView
@@ -29,6 +31,7 @@ class InputAnswerView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
 
         self.log_answer(request, serializer)
+        self.add_answer_time(request)
         return self.verify_answer(request, serializer)
 
     def log_answer(self, request, serializer):
@@ -38,6 +41,11 @@ class InputAnswerView(GenericAPIView):
             level=request.user.level,
             answer=serializer.data.get("answer"),
         )
+
+    def add_answer_time(self, request):
+        user = request.user
+        user.last_anstime = datetime.now()
+        user.save()
 
     def verify_answer(self, request, serializer):
         """Verify if logged answer is correct."""
@@ -65,8 +73,8 @@ class InputAnswerView(GenericAPIView):
 
 
 class LeaderboardView(ListAPIView):
+    """Retrieve Leaderboard as a list."""
 
     serializer_class = LeaderboardSerializer
-    
     def get_queryset(self):
         return Level.objects.filter(is_locked=False)

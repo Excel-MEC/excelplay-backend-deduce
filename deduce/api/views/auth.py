@@ -52,6 +52,7 @@ class LoginApiView(APIView):
             email=user_data.get("email", ""),
             profile_picture=user_data.get("picture", ""),
         )
-        user.set_unusable_password()
-        user.save()
+        if created:
+            user.set_unusable_password()
+            user.save()
         return user
