@@ -5,7 +5,12 @@ from rest_framework.response import Response
 from rest_framework.generics import RetrieveAPIView, ListAPIView, GenericAPIView
 
 from api.models import Level, AnswerLog, Hint
-from api.serializers import QuestionSerializer, AnswerInputSerializer, HintSerializer, LeaderboardSerializer
+from api.serializers import (
+    QuestionSerializer,
+    AnswerInputSerializer,
+    HintSerializer,
+    LeaderboardSerializer,
+)
 
 
 class QuestionView(RetrieveAPIView):
@@ -26,6 +31,7 @@ class InputAnswerView(GenericAPIView):
     """Post and verify answers."""
 
     serializer_class = AnswerInputSerializer
+
     def post(self, request):
         serializer = AnswerInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -76,5 +82,6 @@ class LeaderboardView(ListAPIView):
     """Retrieve Leaderboard as a list."""
 
     serializer_class = LeaderboardSerializer
+
     def get_queryset(self):
         return Level.objects.filter(is_locked=False)
