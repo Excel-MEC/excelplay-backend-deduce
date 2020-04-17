@@ -15,9 +15,10 @@ class User(AbstractUser):
 
     def get_full_name(self):
         return super().get_full_name()
-        
+
     def __str__(self):
         return self.email
+
     class Meta:
         ordering = ["-level", "last_anstime"]
 
@@ -39,10 +40,16 @@ class Level(models.Model):
     level_file_1 = models.FileField(upload_to="level_images/", null=True, blank=True)
     level_file_2 = models.FileField(upload_to="level_images/", null=True, blank=True)
     level_file_3 = models.FileField(upload_to="level_images/", null=True, blank=True)
-    
+
     cover_image = models.FileField(upload_to="cover_images/", null=False, blank=False)
     is_locked = models.BooleanField(default=True)
-    unlocked_by = models.ForeignKey(User, related_name="unlocked_by", on_delete=models.CASCADE, blank=True, null=True)
+    unlocked_by = models.ForeignKey(
+        User,
+        related_name="unlocked_by",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+    )
 
     def __str__(self):
         return str(self.level_number)
