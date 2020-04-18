@@ -10,6 +10,7 @@ from api.serializers import (
     AnswerInputSerializer,
     HintSerializer,
     LeaderboardSerializer,
+    CurrLevelSerializer,
 )
 
 
@@ -85,3 +86,17 @@ class LeaderboardView(ListAPIView):
 
     def get_queryset(self):
         return Level.objects.filter(is_locked=False)
+
+
+class CurrLevel(RetrieveAPIView):
+    """Return the highest level that is locked"""
+
+    serializer_class = CurrLevelSerializer
+    # queryset = Level.objects.filter(is_locked=True).order_by("level_number").first()
+
+    def get_queryset(self):
+        # print(Level.objects.filter(is_locked=True).order_by("level_number").first())
+        return Level.objects.filter(is_locked=True).order_by("level_number")
+
+    def get_object(self):
+        return self.get_queryset().first()

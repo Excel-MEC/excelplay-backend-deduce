@@ -30,7 +30,8 @@ class QuestionSerializer(serializers.ModelSerializer):
             "level_file_3",
             "cover_image",
             "question",
-            "hints")
+            "hints",
+        )
 
 
 class AnswerInputSerializer(serializers.Serializer):
@@ -42,8 +43,14 @@ class AnswerInputSerializer(serializers.Serializer):
 class LeaderboardSerializer(serializers.ModelSerializer):
     """Serialize Leadeboard."""
 
-    unlocked_by = serializers.CharField(source='unlocked_by.get_full_name')
+    unlocked_by = serializers.CharField(source="unlocked_by.get_full_name")
 
     class Meta:
         model = Level
-        fields = ("level_number", "question", "unlocked_by")
+        fields = ("level_number", "unlocked_by")
+
+
+class CurrLevelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Level
+        fields = ("level_number",)
