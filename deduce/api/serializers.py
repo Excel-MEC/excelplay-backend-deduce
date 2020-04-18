@@ -48,3 +48,9 @@ class LeaderboardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Level
         fields = ("level_number", "unlocked_by")
+
+
+class CurrLevelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Level
+        fields = ("level_number",)
