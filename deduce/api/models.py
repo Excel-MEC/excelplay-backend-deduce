@@ -17,7 +17,7 @@ class User(AbstractUser):
         return super().get_full_name()
 
     def __str__(self):
-        return self.email
+        return "{} | {}".format(self.get_full_name(), self.email)
 
     class Meta:
         ordering = ["-level", "last_anstime"]
