@@ -18,7 +18,8 @@ from datetime import timedelta
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 env = environ.Env()
-environ.Env.read_env(env_file=os.path.join(BASE_DIR, ".env"))
+if env.bool("DEV", True):
+    environ.Env.read_env(env_file=os.path.join(BASE_DIR, ".env"))
 JWT_SECRET_KEY = env("JWT_SECRET_KEY")
 AUTH0_URL = env("AUTH0_URL")
 
@@ -92,12 +93,12 @@ WSGI_APPLICATION = "deduce.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
-    }
-}
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+#     }
+# }
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=30),
@@ -105,16 +106,16 @@ SIMPLE_JWT = {
     "SIGNING_KEY": JWT_SECRET_KEY,
 }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': env.str('POSTGRES_DB'),
-#         'USER': env.str('POSTGRES_USER'),
-#         'PASSWORD': env.str('POSTGRES_PASSWORD'),
-#         'HOST': 'database',  # <-- IMPORTANT: same name as docker-compose service!
-#         'PORT': '5432',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': env.str('POSTGRES_DB'),
+        'USER': env.str('POSTGRES_USER'),
+        'PASSWORD': env.str('POSTGRES_PASSWORD'),
+        'HOST': 'database',  # <-- IMPORTANT: same name as docker-compose service!
+        'PORT': '5432',
+    }
+}
 
 
 AUTH_USER_MODEL = "api.User"
