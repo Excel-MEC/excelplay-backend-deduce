@@ -5,6 +5,6 @@ COPY requirements.txt /opt/services/djangoapp/src/
 RUN pip install -r requirements.txt
 
 COPY . /opt/services/djangoapp/src
-EXPOSE 8000
+EXPOSE $PORT
 RUN chmod +x docker-entrypoint.sh
 CMD ["./docker-entrypoint.sh"]

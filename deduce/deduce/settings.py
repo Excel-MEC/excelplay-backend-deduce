@@ -18,7 +18,8 @@ from datetime import timedelta
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 env = environ.Env()
-if env.bool("DEV", True):
+ENVIRONMENT_TYPE = env.str("ENVIRONMENT", "dev")
+if ENVIRONMENT_TYPE == "dev":
     environ.Env.read_env(env_file=os.path.join(BASE_DIR, ".env"))
 JWT_SECRET_KEY = env("JWT_SECRET_KEY")
 AUTH0_URL = env("AUTH0_URL")
@@ -93,10 +94,18 @@ WSGI_APPLICATION = "deduce.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+DATABASES = {
+    "default": env.db(),
+}
+
 # DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': env.str('POSTGRES_DB'),
+#         'USER': env.str('POSTGRES_USER'),
+#         'PASSWORD': env.str('POSTGRES_PASSWORD'),
+#         'HOST': 'database',  # <-- IMPORTANT: same name as docker-compose service!
+#         'PORT': '5432',
 #     }
 # }
 
@@ -104,17 +113,6 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=365),
     "SIGNING_KEY": JWT_SECRET_KEY,
-}
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': env.str('POSTGRES_DB'),
-        'USER': env.str('POSTGRES_USER'),
-        'PASSWORD': env.str('POSTGRES_PASSWORD'),
-        'HOST': 'database',  # <-- IMPORTANT: same name as docker-compose service!
-        'PORT': '5432',
-    }
 }
 
 
@@ -127,9 +125,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator", },
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator", },
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator", },
 ]
 
 # Rest Framework
@@ -163,7 +161,18 @@ USE_TZ = True
 STATIC_URL = "/static/"
 MEDIA_URL = "/media/"
 
-STATIC_ROOT = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), "static")
+# STATICFILES_DIRS = [os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), "static"), os.path.join(BASE_DIR, "static")]
+# MEDIAFILES_DIRS = [os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), "media"), os.path.join(BASE_DIR, "static")]
 
-# do the same for media files, it must match /opt/services/djangoapp/media/
-MEDIA_ROOT = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), "media")
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
+# Production Settings
+# -----------------------------------------------------------------------------------------------------------
+
+if ENVIRONMENT_TYPE == "prod":
+    DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
+    GS_BUCKET_NAME = env.str("STORAGE_BUCKET_NAME")
+    GS_DEFAULT_ACL = "publicRead"
+    GS_CUSTOM_ENDPOINT = "http://storage.excelmec.org"
+    GS_LOCATION = "deduce"
