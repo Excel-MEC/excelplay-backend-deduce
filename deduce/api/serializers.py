@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Level, Hint
+from .models import Level, Hint, CurrentLevel
 
 
 class AccessTokenSerializer(serializers.Serializer):
@@ -50,7 +50,7 @@ class LeaderboardSerializer(serializers.ModelSerializer):
         fields = ("level_number", "unlocked_by")
 
 
-class CurrLevelSerializer(serializers.ModelSerializer):
+class CurrentLevelSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Level
-        fields = ("level_number",)
+        model = CurrentLevel
+        fields = ("level",)

@@ -1,18 +1,17 @@
-from datetime import datetime
+from django.utils import timezone
 
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import RetrieveAPIView, ListAPIView, GenericAPIView
 
-from api.models import Level, AnswerLog, Hint
+from api.models import Level, AnswerLog, Hint, CurrentLevel
 from api.serializers import (
     QuestionSerializer,
     AnswerInputSerializer,
     HintSerializer,
     LeaderboardSerializer,
-    CurrLevelSerializer,
+    CurrentLevelSerializer,
 )
-
 
 class QuestionView(RetrieveAPIView):
     """Retrieve question based on current user level."""
@@ -20,8 +19,8 @@ class QuestionView(RetrieveAPIView):
     serializer_class = QuestionSerializer
 
     def get_queryset(self):
-        user_level = self.request.user.level
-        return Level.objects.filter(level_number=user_level)
+        current_level = CurrentLevel.objects.values_list('level', flat=True).first()
+        return Level.objects.filter(level_number=current_level)
 
     def get_object(self):
         """Get question object."""
@@ -43,26 +42,34 @@ class InputAnswerView(GenericAPIView):
 
     def log_answer(self, request, serializer):
         """Log user responses."""
+        current_level = CurrentLevel.objects.values_list('level', flat=True).first()
         AnswerLog.objects.create(
             user=request.user,
-            level=request.user.level,
+            level=current_level,
             answer=serializer.data.get("answer"),
         )
 
     def add_answer_time(self, request):
         user = request.user
-        user.last_anstime = datetime.now()
+        user.last_anstime = timezone.now()
         user.save()
 
     def verify_answer(self, request, serializer):
         """Verify if logged answer is correct."""
         level = self.get_object()
+
+        if level is None:
+            return Response({'message': 'level_invalid'}, status=status.HTTP_400_BAD_REQUEST)
+
         user = request.user
         user_answer = serializer.data.get("answer")
+        current_level = CurrentLevel.objects.values_list('level', flat=True).first()
+
 
         if level.answer.lower() == user_answer.lower():
-            user.level += 1
-            user.save()
+            current_level_obj = CurrentLevel.objects.all().first()
+            current_level_obj.level = current_level+1   
+            current_level_obj.save()
 
             level.is_locked = False  # Unlock level for all users
             level.unlocked_by = user
@@ -73,7 +80,8 @@ class InputAnswerView(GenericAPIView):
         return Response({"correct_answer": False}, status=status.HTTP_200_OK)
 
     def get_queryset(self):
-        return Level.objects.filter(level_number=self.request.user.level)
+        current_level = CurrentLevel.objects.values_list('level', flat=True).first()
+        return Level.objects.filter(level_number=current_level)
 
     def get_object(self):
         return self.get_queryset().first()
@@ -88,15 +96,13 @@ class LeaderboardView(ListAPIView):
         return Level.objects.filter(is_locked=False)
 
 
-class CurrLevel(RetrieveAPIView):
+class CurrentLevelView(RetrieveAPIView):
     """Return the highest level that is locked"""
 
-    serializer_class = CurrLevelSerializer
-    # queryset = Level.objects.filter(is_locked=True).order_by("level_number").first()
+    serializer_class = CurrentLevelSerializer
 
     def get_queryset(self):
-        # print(Level.objects.filter(is_locked=True).order_by("level_number").first())
-        return Level.objects.filter(is_locked=True).order_by("level_number")
+        return CurrentLevel.objects.all()
 
     def get_object(self):
         return self.get_queryset().first()

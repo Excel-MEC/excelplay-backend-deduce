@@ -55,6 +55,9 @@ class Level(models.Model):
         return str(self.level_number)
 
 
+class CurrentLevel(models.Model):
+    level = models.IntegerField(default=1)
+
 class Hint(models.Model):
     level = models.ForeignKey(Level, related_name="hints", on_delete=models.CASCADE)
     hint = models.TextField()
