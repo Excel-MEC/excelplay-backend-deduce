@@ -21,6 +21,7 @@ class LoginApiView(APIView):
 
         if serializer.is_valid():
             access_token = serializer.validated_data.get("access_token", None)
+            print(access_token)
             return self.verify_access_token(access_token)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -51,6 +52,7 @@ class LoginApiView(APIView):
             last_name=user_data.get("family_name", ""),
             email=user_data.get("email", ""),
             profile_picture=user_data.get("picture", ""),
+            username=user_data.get("email"),
         )
         if created:
             user.set_unusable_password()
