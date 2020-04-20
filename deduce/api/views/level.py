@@ -41,17 +41,26 @@ class InputAnswerView(GenericAPIView):
         serializer = AnswerInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        self.log_answer(request, serializer)
-        self.add_answer_time(request)
-        return self.verify_answer(request, serializer)
+        self.current_level = CurrentLevel.objects.values_list(
+            "level", flat=True
+        ).first()
 
-    def log_answer(self, request, serializer):
+        # Cannot answer a question if current_level is not set
+        if self.current_level == None:
+            return Response(
+                {"message": "level_invalid"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        answer_from_user = serializer.validated_data.get("answer")
+
+        self.log_answer(request, answer_from_user)
+        self.add_answer_time(request)
+        return self.verify_answer(request, answer_from_user)
+
+    def log_answer(self, request, ans):
         """Log user responses."""
-        current_level = CurrentLevel.objects.values_list("level", flat=True).first()
         AnswerLog.objects.create(
-            user=request.user,
-            level=current_level,
-            answer=serializer.validated_data.get("answer"),
+            user=request.user, level=self.current_level, answer=ans,
         )
 
     def add_answer_time(self, request):
@@ -59,7 +68,7 @@ class InputAnswerView(GenericAPIView):
         user.last_anstime = timezone.now()
         user.save()
 
-    def verify_answer(self, request, serializer):
+    def verify_answer(self, request, ans):
         """Verify if logged answer is correct."""
         level = self.get_object()
 
@@ -69,12 +78,10 @@ class InputAnswerView(GenericAPIView):
             )
 
         user = request.user
-        user_answer = serializer.validated_data.get("answer")
-        current_level = CurrentLevel.objects.values_list("level", flat=True).first()
 
-        if level.answer.lower() == user_answer.lower():
+        if level.answer.lower() == ans.lower():
             current_level_obj = CurrentLevel.objects.all().first()
-            current_level_obj.level = current_level + 1
+            current_level_obj.level = self.current_level + 1
             current_level_obj.save()
 
             level.is_locked = False  # Unlock level for all users
@@ -86,8 +93,7 @@ class InputAnswerView(GenericAPIView):
         return Response({"correct_answer": False}, status=status.HTTP_200_OK)
 
     def get_queryset(self):
-        current_level = CurrentLevel.objects.values_list("level", flat=True).first()
-        return Level.objects.filter(level_number=current_level)
+        return Level.objects.filter(level_number=self.current_level)
 
     def get_object(self):
         return self.get_queryset().first()
