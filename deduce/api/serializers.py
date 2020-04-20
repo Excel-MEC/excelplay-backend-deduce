@@ -38,6 +38,7 @@ class AnswerInputSerializer(serializers.Serializer):
     """Serialize input answer field."""
 
     answer = serializers.CharField(max_length=500)
+    level_number = serializers.IntegerField()
 
 
 class LeaderboardSerializer(serializers.ModelSerializer):

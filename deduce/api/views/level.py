@@ -52,10 +52,11 @@ class InputAnswerView(GenericAPIView):
             )
 
         answer_from_user = serializer.validated_data.get("answer")
+        level_of_user = serializer.validated_data.get("level_number")
 
         self.log_answer(request, answer_from_user)
         self.add_answer_time(request)
-        return self.verify_answer(request, answer_from_user)
+        return self.verify_answer(request, answer_from_user, level_of_user)
 
     def log_answer(self, request, ans):
         """Log user responses."""
@@ -68,13 +69,19 @@ class InputAnswerView(GenericAPIView):
         user.last_anstime = timezone.now()
         user.save()
 
-    def verify_answer(self, request, ans):
+    def verify_answer(self, request, ans, level_of_user):
         """Verify if logged answer is correct."""
         level = self.get_object()
 
         if level is None:
             return Response(
                 {"message": "level_invalid"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # If the level number sent from frontend does not match the current level number
+        if level.level_number != level_of_user:
+            return Response(
+                {"message": "level has been solved"}, status=status.HTTP_400_BAD_REQUEST
             )
 
         user = request.user
