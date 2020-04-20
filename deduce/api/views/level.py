@@ -51,7 +51,7 @@ class InputAnswerView(GenericAPIView):
         AnswerLog.objects.create(
             user=request.user,
             level=current_level,
-            answer=serializer.data.get("answer"),
+            answer=serializer.validated_data.get("answer"),
         )
 
     def add_answer_time(self, request):
@@ -69,7 +69,7 @@ class InputAnswerView(GenericAPIView):
             )
 
         user = request.user
-        user_answer = serializer.data.get("answer")
+        user_answer = serializer.validated_data.get("answer")
         current_level = CurrentLevel.objects.values_list("level", flat=True).first()
 
         if level.answer.lower() == user_answer.lower():

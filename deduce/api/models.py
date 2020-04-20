@@ -10,6 +10,7 @@ class User(AbstractUser):
 
     id = models.CharField(max_length=50, primary_key=True)
     profile_picture = models.URLField(null=False, blank=False)
+    # DEPRECIATED - not being used since all users are always on the same level
     level = models.IntegerField(default=1, null=False)
     last_anstime = models.DateTimeField(null=True)
 
@@ -57,6 +58,7 @@ class Level(models.Model):
 
 class CurrentLevel(models.Model):
     level = models.IntegerField(default=1)
+
 
 class Hint(models.Model):
     level = models.ForeignKey(Level, related_name="hints", on_delete=models.CASCADE)
