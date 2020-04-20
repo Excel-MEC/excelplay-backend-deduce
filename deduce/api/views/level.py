@@ -13,13 +13,18 @@ from api.serializers import (
     CurrentLevelSerializer,
 )
 
+
 class QuestionView(RetrieveAPIView):
     """Retrieve question based on current user level."""
 
     serializer_class = QuestionSerializer
 
     def get_queryset(self):
-        current_level = CurrentLevel.objects.values_list('level', flat=True).first()
+        current_level = CurrentLevel.objects.values_list("level", flat=True).first()
+        # If this is the first question fetch request, so create the current level entry.
+        if current_level == None:
+            CurrentLevel.objects.create()
+            return Level.objects.filter(level_number=1)
         return Level.objects.filter(level_number=current_level)
 
     def get_object(self):
@@ -36,17 +41,27 @@ class InputAnswerView(GenericAPIView):
         serializer = AnswerInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        self.log_answer(request, serializer)
-        self.add_answer_time(request)
-        return self.verify_answer(request, serializer)
+        self.current_level = CurrentLevel.objects.values_list(
+            "level", flat=True
+        ).first()
 
-    def log_answer(self, request, serializer):
+        # Cannot answer a question if current_level is not set
+        if self.current_level == None:
+            return Response(
+                {"message": "level_invalid"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        answer_from_user = serializer.validated_data.get("answer")
+        level_of_user = serializer.validated_data.get("level_number")
+
+        self.log_answer(request, answer_from_user)
+        self.add_answer_time(request)
+        return self.verify_answer(request, answer_from_user, level_of_user)
+
+    def log_answer(self, request, ans):
         """Log user responses."""
-        current_level = CurrentLevel.objects.values_list('level', flat=True).first()
         AnswerLog.objects.create(
-            user=request.user,
-            level=current_level,
-            answer=serializer.data.get("answer"),
+            user=request.user, level=self.current_level, answer=ans,
         )
 
     def add_answer_time(self, request):
@@ -54,21 +69,26 @@ class InputAnswerView(GenericAPIView):
         user.last_anstime = timezone.now()
         user.save()
 
-    def verify_answer(self, request, serializer):
+    def verify_answer(self, request, ans, level_of_user):
         """Verify if logged answer is correct."""
         level = self.get_object()
 
         if level is None:
-            return Response({'message': 'level_invalid'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"message": "level_invalid"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # If the level number sent from frontend does not match the current level number
+        if level.level_number != level_of_user:
+            return Response(
+                {"message": "level has been solved"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         user = request.user
-        user_answer = serializer.data.get("answer")
-        current_level = CurrentLevel.objects.values_list('level', flat=True).first()
 
-
-        if level.answer.lower() == user_answer.lower():
+        if level.answer.lower() == ans.lower():
             current_level_obj = CurrentLevel.objects.all().first()
-            current_level_obj.level = current_level+1   
+            current_level_obj.level = self.current_level + 1
             current_level_obj.save()
 
             level.is_locked = False  # Unlock level for all users
@@ -80,8 +100,7 @@ class InputAnswerView(GenericAPIView):
         return Response({"correct_answer": False}, status=status.HTTP_200_OK)
 
     def get_queryset(self):
-        current_level = CurrentLevel.objects.values_list('level', flat=True).first()
-        return Level.objects.filter(level_number=current_level)
+        return Level.objects.filter(level_number=self.current_level)
 
     def get_object(self):
         return self.get_queryset().first()
