@@ -1,11 +1,20 @@
 from rest_framework import serializers
-from .models import Level, Hint, CurrentLevel
+from .models import Level, Hint, CurrentLevel, User
 
 
 class AccessTokenSerializer(serializers.Serializer):
     """Serialize Auth0 access_token."""
 
     access_token = serializers.CharField(max_length=32)
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    """Serialize profile info"""
+
+    name = serializers.CharField(source='get_full_name')
+    class Meta:
+        model = User
+        fields = ("id", "name", "email", "profile_picture")
 
 
 class HintSerializer(serializers.ModelSerializer):

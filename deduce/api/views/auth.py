@@ -2,12 +2,13 @@ import requests
 
 from django.conf import settings
 from rest_framework.views import APIView
+from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework import status
 
 from api.models import User
-from api.serializers import AccessTokenSerializer
+from api.serializers import AccessTokenSerializer, ProfileSerializer
 
 
 class LoginApiView(APIView):
@@ -58,3 +59,13 @@ class LoginApiView(APIView):
             user.set_unusable_password()
             user.save()
         return user
+
+
+class ProfileView(RetrieveAPIView):
+    serializer_class = ProfileSerializer
+
+    def get_queryset(self):
+        return self.request.user
+    
+    def get_object(self):
+        return self.get_queryset()

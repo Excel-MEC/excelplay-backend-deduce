@@ -4,7 +4,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
-from api.views.auth import LoginApiView
+from api.views.auth import LoginApiView, ProfileView
 from api.views.level import QuestionView, InputAnswerView, LeaderboardView, CurrentLevelView
 
 urlpatterns = [
@@ -14,4 +14,5 @@ urlpatterns = [
     path("answer", InputAnswerView.as_view(), name="deduce-answer"),
     path("leaderboard", LeaderboardView.as_view(), name="deduce-leaderboard"),
     path("current_level", CurrentLevelView.as_view(), name="deduce-currlevel"),
+    path("user_info", ProfileView.as_view(), name="deduce-user-info"),
 ]
