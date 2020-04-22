@@ -39,7 +39,7 @@ ALLOWED_HOSTS = ["*"]
 CORS_ORIGIN_WHITELIST = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://deduce.web.app",
+    "https://staging.deduce.excelmec.org",
 ]
 
 
@@ -174,5 +174,5 @@ if ENVIRONMENT_TYPE == "prod":
     DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
     GS_BUCKET_NAME = env.str("STORAGE_BUCKET_NAME")
     GS_DEFAULT_ACL = "publicRead"
-    GS_CUSTOM_ENDPOINT = "http://storage.excelmec.org"
+    # GS_CUSTOM_ENDPOINT = "http://storage.excelmec.org"
     GS_LOCATION = "deduce"
