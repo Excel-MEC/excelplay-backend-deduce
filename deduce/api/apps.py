@@ -6,5 +6,5 @@ class ApiConfig(AppConfig):
 
     def ready(self):
         import api.signals  # noqa
-        from api.utils.cron_job import job_scheduler # noqa
-        job_scheduler()
+        # from api.utils.cron_job import job_scheduler # noqa
+        # job_scheduler()
