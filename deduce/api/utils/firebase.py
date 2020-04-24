@@ -7,7 +7,7 @@ from firebase_admin import db
 # Firebase Setup
 env = environ.Env()
 SERVICE_ACCOUNT = env.str('GOOGLE_APPLICATION_CREDENTIALS', '../key.json')
-cred = credentials.Certificate(SERVICE_ACCOUNT)
+cred = credentials.Certificate(f'{SERVICE_ACCOUNT}')
 firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://excelmec.firebaseio.com/'
 })
