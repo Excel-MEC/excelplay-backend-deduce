@@ -1,6 +1,7 @@
 from django.utils import timezone
 
 from rest_framework import status
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.generics import RetrieveAPIView, ListAPIView, GenericAPIView
 
@@ -119,6 +120,8 @@ class CurrentLevelView(RetrieveAPIView):
     """Return the highest level that is locked"""
 
     serializer_class = CurrentLevelSerializer
+    permission_classes = (AllowAny,)
+
 
     def get_queryset(self):
         return CurrentLevel.objects.all()
