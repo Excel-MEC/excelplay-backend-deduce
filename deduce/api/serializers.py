@@ -11,10 +11,11 @@ class AccessTokenSerializer(serializers.Serializer):
 class ProfileSerializer(serializers.ModelSerializer):
     """Serialize profile info"""
 
-    name = serializers.CharField(source='get_full_name')
+    name = serializers.CharField(source="get_full_name")
+
     class Meta:
         model = User
-        fields = ("id", "name", "email", "profile_picture")
+        fields = ("id", "name", "email", "profile_picture", "score")
 
 
 class HintSerializer(serializers.ModelSerializer):
