@@ -96,6 +96,9 @@ class InputAnswerView(GenericAPIView):
             level.unlocked_by = user
             level.save()
 
+            user.score += 100
+            user.save()
+
             return Response({"correct_answer": True}, status=status.HTTP_200_OK)
 
         return Response({"correct_answer": False}, status=status.HTTP_200_OK)
@@ -121,7 +124,6 @@ class CurrentLevelView(RetrieveAPIView):
 
     serializer_class = CurrentLevelSerializer
     permission_classes = (AllowAny,)
-
 
     def get_queryset(self):
         return CurrentLevel.objects.all()

@@ -13,6 +13,7 @@ class User(AbstractUser):
     # DEPRECIATED - not being used since all users are always on the same level
     level = models.IntegerField(default=1, null=False)
     last_anstime = models.DateTimeField(null=True)
+    score = models.IntegerField(default=0, null=False)
 
     def get_full_name(self):
         return super().get_full_name()
