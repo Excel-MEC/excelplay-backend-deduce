@@ -67,18 +67,3 @@ class Hint(models.Model):
 
     def __str__(self):
         return "Hint for {0}".format(self.level)
-
-
-class AnswerLog(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    level = models.IntegerField(default=1)
-    answer = models.TextField()
-    anstime = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return "%-30s| %10s | %10s | %10s " % (
-            self.user,
-            self.answer,
-            self.level,
-            self.anstime,
-        )
