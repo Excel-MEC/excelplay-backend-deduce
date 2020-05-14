@@ -1,10 +1,11 @@
 from django.utils import timezone
 
 from rest_framework import status
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.generics import RetrieveAPIView, ListAPIView, GenericAPIView
 
-from api.models import Level, AnswerLog, Hint, CurrentLevel
+from api.models import Level, Hint, CurrentLevel
 from api.serializers import (
     QuestionSerializer,
     AnswerInputSerializer,
@@ -54,15 +55,8 @@ class InputAnswerView(GenericAPIView):
         answer_from_user = serializer.validated_data.get("answer")
         level_of_user = serializer.validated_data.get("level_number")
 
-        self.log_answer(request, answer_from_user)
         self.add_answer_time(request)
         return self.verify_answer(request, answer_from_user, level_of_user)
-
-    def log_answer(self, request, ans):
-        """Log user responses."""
-        AnswerLog.objects.create(
-            user=request.user, level=self.current_level, answer=ans,
-        )
 
     def add_answer_time(self, request):
         user = request.user
@@ -95,6 +89,9 @@ class InputAnswerView(GenericAPIView):
             level.unlocked_by = user
             level.save()
 
+            user.score += 100
+            user.save()
+
             return Response({"correct_answer": True}, status=status.HTTP_200_OK)
 
         return Response({"correct_answer": False}, status=status.HTTP_200_OK)
@@ -119,6 +116,7 @@ class CurrentLevelView(RetrieveAPIView):
     """Return the highest level that is locked"""
 
     serializer_class = CurrentLevelSerializer
+    permission_classes = (AllowAny,)
 
     def get_queryset(self):
         return CurrentLevel.objects.all()
