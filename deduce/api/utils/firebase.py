@@ -12,6 +12,7 @@ firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://excelmec.firebaseio.com/'
 })
 
+
 def firebase_current_level_ref():
     ref = db.reference('current_level')
     return ref

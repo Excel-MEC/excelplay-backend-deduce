@@ -21,7 +21,8 @@ class QuestionView(RetrieveAPIView):
     serializer_class = QuestionSerializer
 
     def get_queryset(self):
-        current_level = CurrentLevel.objects.values_list("level", flat=True).first()
+        current_level = CurrentLevel.objects.values_list(
+            "level", flat=True).first()
         # If this is the first question fetch request, so create the current level entry.
         if current_level == None:
             CurrentLevel.objects.create()
@@ -83,6 +84,7 @@ class InputAnswerView(GenericAPIView):
         if level.answer.lower() == ans.lower():
             current_level_obj = CurrentLevel.objects.all().first()
             current_level_obj.level = self.current_level + 1
+            current_level_obj.user = request.user.email
             current_level_obj.save()
 
             level.is_locked = False  # Unlock level for all users
