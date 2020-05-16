@@ -55,10 +55,12 @@ class LeaderboardSerializer(serializers.ModelSerializer):
     """Serialize Leadeboard."""
 
     unlocked_by = serializers.CharField(source="unlocked_by.get_full_name")
+    profile_picture = serializers.CharField(source="unlocked_by.profile_picture")
+    score = serializers.IntegerField(source="unlocked_by.score")
 
     class Meta:
         model = Level
-        fields = ("level_number", "unlocked_by")
+        fields = ("level_number", "unlocked_by", "profile_picture", "score")
 
 
 class CurrentLevelSerializer(serializers.ModelSerializer):
