@@ -9,9 +9,7 @@ from api.utils.firebase import firebase_current_level_ref
 def update_firebase_current_level(sender, instance, **kwargs):
     """This functions update current level in firebase realtime-db.
     As the production environment doesn't support socket, this is a workaround to notify the client."""
-    
-    current_level = instance.level
 
-    #Update firebase db child
+    # Update firebase db child
     ref = firebase_current_level_ref()
-    ref.set(current_level)
+    ref.set({"level": instance.level, "user": instance.user})

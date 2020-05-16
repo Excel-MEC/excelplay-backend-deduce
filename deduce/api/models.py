@@ -59,6 +59,7 @@ class Level(models.Model):
 
 class CurrentLevel(models.Model):
     level = models.IntegerField(default=1)
+    user = models.CharField(max_length=200, default="None")
 
 
 class Hint(models.Model):
