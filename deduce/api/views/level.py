@@ -1,9 +1,11 @@
 from django.utils import timezone
+from django.conf import settings
 
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.generics import RetrieveAPIView, ListAPIView, GenericAPIView
+from rest_framework.views import APIView
 
 from api.models import Level, Hint, CurrentLevel
 from api.serializers import (
@@ -21,8 +23,7 @@ class QuestionView(RetrieveAPIView):
     serializer_class = QuestionSerializer
 
     def get_queryset(self):
-        current_level = CurrentLevel.objects.values_list(
-            "level", flat=True).first()
+        current_level = CurrentLevel.objects.values_list("level", flat=True).first()
         # If this is the first question fetch request, so create the current level entry.
         if current_level == None:
             CurrentLevel.objects.create()
@@ -125,3 +126,10 @@ class CurrentLevelView(RetrieveAPIView):
 
     def get_object(self):
         return self.get_queryset().first()
+
+
+class EndgameView(APIView):
+    def get(self, req):
+        if not Level.objects.filter(is_locked=True):
+            return Response(settings.ENDGAME)
+        return Response("The game is not over!")

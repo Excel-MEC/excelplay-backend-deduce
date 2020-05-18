@@ -46,6 +46,8 @@ CORS_ORIGIN_WHITELIST = [
 
 LOGIN_URL = env("LOGIN_URL")
 
+# URL of resource to be displayed after game concludes
+ENDGAME = env("ENDGAME")
 
 # Application definition
 
