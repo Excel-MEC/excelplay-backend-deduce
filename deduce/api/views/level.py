@@ -7,13 +7,14 @@ from rest_framework.response import Response
 from rest_framework.generics import RetrieveAPIView, ListAPIView, GenericAPIView
 from rest_framework.views import APIView
 
-from api.models import Level, Hint, CurrentLevel
+from api.models import Level, Hint, CurrentLevel, User
 from api.serializers import (
     QuestionSerializer,
     AnswerInputSerializer,
     HintSerializer,
     LeaderboardSerializer,
     CurrentLevelSerializer,
+    ProfileSerializer,
 )
 
 
@@ -57,7 +58,6 @@ class InputAnswerView(GenericAPIView):
         answer_from_user = serializer.validated_data.get("answer")
         level_of_user = serializer.validated_data.get("level_number")
 
-        self.add_answer_time(request)
         return self.verify_answer(request, answer_from_user, level_of_user)
 
     def add_answer_time(self, request):
@@ -92,6 +92,7 @@ class InputAnswerView(GenericAPIView):
             level.unlocked_by = user
             level.save()
 
+            self.add_answer_time(request)
             user.score += 100
             user.save()
 
@@ -133,3 +134,10 @@ class EndgameView(APIView):
         if not Level.objects.filter(is_locked=True):
             return Response(settings.ENDGAME)
         return Response("The game is not over!")
+
+
+class HighScoresView(ListAPIView):
+    serializer_class = ProfileSerializer
+
+    def get_queryset(self):
+        return User.objects.all().order_by("-score", "-last_anstime")[:10]
