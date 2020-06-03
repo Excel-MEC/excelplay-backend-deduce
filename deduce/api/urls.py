@@ -12,6 +12,7 @@ from api.views.level import (
     CurrentLevelView,
     EndgameView,
     HighScoresView,
+    GetLevelView,
 )
 
 urlpatterns = [
@@ -24,4 +25,5 @@ urlpatterns = [
     path("user_info", ProfileView.as_view(), name="deduce-user-info"),
     path("endgame", EndgameView.as_view(), name="deduce-endgame"),
     path("highscores", HighScoresView.as_view(), name="deduce-highscores"),
+    path("getlevel", GetLevelView.as_view(), name="deduce-getlevel"),
 ]

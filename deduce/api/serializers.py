@@ -38,6 +38,7 @@ class QuestionSerializer(serializers.ModelSerializer):
             "level_file_1",
             "level_file_2",
             "level_file_3",
+            "score",
             "cover_image",
             "question",
             "hints",
