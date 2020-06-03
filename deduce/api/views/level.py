@@ -18,6 +18,23 @@ from api.serializers import (
 )
 
 
+class GetLevelView(RetrieveAPIView):
+    """
+    Return details of any unlocked level
+    Accepts get requests with a single parameter: level
+    """
+
+    serializer_class = QuestionSerializer
+
+    def get_queryset(self):
+        return Level.objects.filter(is_locked=False)
+
+    def get_object(self):
+        return self.get_queryset().get(
+            level_number=self.request.query_params.get("level")
+        )
+
+
 class QuestionView(RetrieveAPIView):
     """Retrieve question based on current user level."""
 
