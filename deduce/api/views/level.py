@@ -93,7 +93,7 @@ class InputAnswerView(GenericAPIView):
             level.save()
 
             self.add_answer_time(request)
-            user.score += 100
+            user.score += level.score
             user.save()
 
             return Response({"correct_answer": True}, status=status.HTTP_200_OK)
