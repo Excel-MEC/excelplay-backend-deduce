@@ -93,26 +93,41 @@ class InputAnswerView(GenericAPIView):
 
         # If the level number sent from frontend does not match the current level number
         if level.level_number != level_of_user:
-            return Response(
-                {"message": "level has been solved"}, status=status.HTTP_400_BAD_REQUEST
-            )
+            # If it is a previously solved level
+            if level_of_user < level.level_number:
+                previously_solved_level = Level.objects.get(level_number=level_of_user)
+                return self.check_answer(
+                    request,
+                    request.user,
+                    previously_solved_level,
+                    ans,
+                    is_current_level=False,
+                )
+            else:
+                return Response(
+                    {"message": "level has been solved"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
-        user = request.user
+        return self.check_answer(
+            request, request.user, level, ans, is_current_level=True
+        )
 
+    def check_answer(self, request, user, level, ans, is_current_level=True):
         if level.answer.lower() == ans.lower():
-            current_level_obj = CurrentLevel.objects.all().first()
-            current_level_obj.level = self.current_level + 1
-            current_level_obj.user = request.user.email
-            current_level_obj.save()
+            if is_current_level:
+                current_level_obj = CurrentLevel.objects.all().first()
+                current_level_obj.level = self.current_level + 1
+                current_level_obj.user = request.user.email
+                current_level_obj.save()
 
-            level.is_locked = False  # Unlock level for all users
-            level.unlocked_by = user
-            level.save()
+                level.is_locked = False  # Unlock level for all users
+                level.unlocked_by = user
+                level.save()
 
-            self.add_answer_time(request)
-            user.score += level.score
-            user.save()
-
+                self.add_answer_time(request)
+                user.score += level.score
+                user.save()
             return Response({"correct_answer": True}, status=status.HTTP_200_OK)
 
         return Response({"correct_answer": False}, status=status.HTTP_200_OK)
