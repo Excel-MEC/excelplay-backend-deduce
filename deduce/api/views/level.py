@@ -118,7 +118,6 @@ class InputAnswerView(GenericAPIView):
             if is_current_level:
                 current_level_obj = CurrentLevel.objects.all().first()
                 current_level_obj.level = self.current_level + 1
-                current_level_obj.user = request.user.email
                 current_level_obj.save()
 
                 level.is_locked = False  # Unlock level for all users
