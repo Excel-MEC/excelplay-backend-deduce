@@ -55,12 +55,16 @@ class Level(models.Model):
     )
 
     def __str__(self):
-        return str(self.level_number)
+        return "Level {0} - Score {1} - is locked: {2}".format(
+            self.level_number, self.score, self.is_locked
+        )
 
 
 class CurrentLevel(models.Model):
     level = models.IntegerField(default=1)
-    user = models.CharField(max_length=200, default="None")
+
+    def __str__(self):
+        return "Current level is {0}".format(self.level)
 
 
 class Hint(models.Model):
@@ -68,4 +72,4 @@ class Hint(models.Model):
     hint = models.TextField()
 
     def __str__(self):
-        return "Hint for {0}".format(self.level)
+        return "Hint for {0} - {1}".format(self.level, self.hint)
