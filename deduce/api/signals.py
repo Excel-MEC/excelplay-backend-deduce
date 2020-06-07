@@ -19,4 +19,4 @@ def update_firebase_current_level(sender, instance, **kwargs):
 @receiver(post_save, sender=Hint)
 def update_firebase_new_hint(sender, instance, **kwargs):
     ref = firebase_new_hint_ref()
-    ref.set({"level": instance.level, "hint": instance.hint})
+    ref.set({"level": instance.level.level_number, "hint": instance.hint})
