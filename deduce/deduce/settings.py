@@ -33,13 +33,17 @@ SECRET_KEY = env("DJANGO_SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DEBUG")
 
-ALLOWED_HOSTS = ["*"]
-# CORS_ORIGIN_ALLOW_ALL = True
+ALLOWED_HOSTS = [
+    "localhost:3000",
+    "127.0.0.1:3000",
+    "deduce-backend-q7no2lk4qa-de.a.run.app",
+]
 
 CORS_ORIGIN_WHITELIST = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://staging.deduce.excelmec.org",
+    "https://deduce.excelmec.org",
     "https://deduce.web.app",
 ]
 
